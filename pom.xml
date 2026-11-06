@@ -13,7 +13,7 @@
     <description>Parent aggregator for QE BOM and Base Java automation framework</description>
 
     <modules>
-        <module>qe-bom</module>
+        <module>qe-bom-java</module>
         <module>qe-base-java</module>
     </modules>
 
@@ -30,6 +30,7 @@
         <slf4j.version>2.0.16</slf4j.version>
         <logback.version>1.5.16</logback.version>
         <lombok.version>1.18.36</lombok.version>
+        <picocli.version>4.7.7</picocli.version>
 
         <!-- Maven Plugin Versions -->
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
@@ -41,8 +42,48 @@
         <!-- GitLab Package Registry Configuration -->
         <!-- Default placeholders; overridden in CI or via -D flags -->
         <CI_API_V4_URL>https://gitlab.com/api/v4</CI_API_V4_URL>
-        <CI_PROJECT_ID>replace-with-gitlab-project-id</CI_PROJECT_ID>
+        <CI_PROJECT_ID>88582779</CI_PROJECT_ID>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- TestNG Testing Framework -->
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+
+            <!-- SLF4J API -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <!-- Logback Classic Logging Implementation -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <!-- Project Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- PicoCLI Command Line Interface Library -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>

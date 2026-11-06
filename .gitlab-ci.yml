@@ -37,7 +37,7 @@ test:
       - "**/target/logs/"
     expire_in: 7 days
 
-# Publish parent POM, qe-bom, and qe-base-java to GitLab Maven Package Registry
+# Publish parent POM, qe-bom-java, and qe-base-java to GitLab Maven Package Registry
 deploy:
   stage: deploy
   script:

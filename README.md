@@ -13,7 +13,7 @@ qe-bom-base-java/
 ├── .gitlab-ci.yml                 # GitLab CI/CD pipeline (test & deploy to package registry)
 ├── ci_settings.xml                # Maven settings for GitLab Package Registry authentication
 ├── pom.xml                        # Parent aggregator POM & plugin management
-├── qe-bom/                        # Centralized BOM (Bill of Materials) module
+├── qe-bom-java/                   # Centralized BOM (Bill of Materials) module
 │   └── pom.xml                    # Defines managed dependency versions (pom packaging)
 └── qe-base-java/                  # Core test framework module (jar packaging)
     ├── pom.xml
@@ -41,7 +41,7 @@ qe-bom-base-java/
 
 ## 📦 Managed Dependencies
 
-The BOM (`qe-bom`) centrally manages standard versions for all QE projects:
+The BOM (`qe-bom-java`) centrally manages standard versions for all QE projects:
 
 | Dependency | Group ID | Artifact ID | Managed Version |
 | :--- | :--- | :--- | :--- |
@@ -49,6 +49,7 @@ The BOM (`qe-bom`) centrally manages standard versions for all QE projects:
 | **SLF4J API** | `org.slf4j` | `slf4j-api` | `${slf4j.version}` (`2.0.16`) |
 | **Logback Classic** | `ch.qos.logback` | `logback-classic` | `${logback.version}` (`1.5.16`) |
 | **Project Lombok** | `org.projectlombok` | `lombok` | `1.18.36` (scope: `provided`) |
+| **PicoCLI** | `info.picocli` | `picocli` | `${picocli.version}` (`4.7.7`) |
 | **QE Base Java** | `com.adarsha.qe` | `qe-base-java` | `${project.version}` |
 
 ---
@@ -83,37 +84,47 @@ GitLab CI provides predefined environment variables (`CI_PROJECT_ID`, `CI_API_V4
 
 ### 2. Manual / Local Deployment
 
-To publish from your local workstation:
+`CI_PROJECT_ID` and `CI_API_V4_URL` already default to this project's values in the parent `pom.xml`, so you only need to supply credentials locally.
 
-#### Option A: Using a GitLab Deploy Token (Recommended for local)
-1. In GitLab, navigate to **Settings > Repository > Deploy tokens**.
-2. Create a token with `read_package_registry` and `write_package_registry` scopes.
-3. Export the credentials and project details in your terminal:
+#### Option A: Using a Personal Access Token (PAT) — Recommended for local
+1. In GitLab, go to **User Settings > Access Tokens** and generate a PAT with the `api` scope (or `read_api` + `write_repository`).
+2. Export the token — the active `gitlab-maven` server block in `ci_settings.xml` already sends it as a `Private-Token` header, so no further edits are needed:
 
 ```bash
-export CI_PROJECT_ID="<your-gitlab-project-id>"
-export CI_API_V4_URL="https://gitlab.com/api/v4"
-export CI_DEPLOY_USER="<your-deploy-token-username>"
-export CI_DEPLOY_PASSWORD="<your-deploy-token-password>"
+export GITLAB_PRIVATE_TOKEN="<your-personal-access-token>"
 ```
 
-4. Uncomment the Deploy Token server block in `ci_settings.xml` and run:
+3. Deploy:
 
 ```bash
 mvn deploy -s ci_settings.xml -DskipTests
 ```
 
-#### Option B: Using a Personal Access Token (PAT)
-1. Generate a PAT with `api` and `read_api` scopes.
-2. Export your token:
+#### Option B: Using a GitLab Deploy Token
+1. In GitLab, navigate to **Settings > Repository > Deploy tokens**.
+2. Create a token with `read_package_registry` and `write_package_registry` scopes.
+3. Export the credentials:
 
 ```bash
-export CI_PROJECT_ID="<your-gitlab-project-id>"
-export CI_API_V4_URL="https://gitlab.com/api/v4"
-export GITLAB_PRIVATE_TOKEN="<your-personal-access-token>"
+export CI_DEPLOY_USER="<your-deploy-token-username>"
+export CI_DEPLOY_PASSWORD="<your-deploy-token-password>"
 ```
 
-3. Uncomment the `gitlab-maven-local` server block in `ci_settings.xml` and deploy.
+4. Comment out the `Private-Token` header on the default `gitlab-maven` server block and uncomment the Deploy Token server block below it in `ci_settings.xml` (both declare the same server `id`, so only one should be active at a time), then run:
+
+```bash
+mvn deploy -s ci_settings.xml -DskipTests
+```
+
+To deploy against a different GitLab project, override the defaults from `pom.xml` with `-D`:
+
+```bash
+mvn deploy -s ci_settings.xml -DskipTests -DCI_PROJECT_ID=<other-project-id> -DCI_API_V4_URL=https://gitlab.com/api/v4
+```
+
+### 3. Verifying a Deployment
+
+After a successful `deploy`, confirm the artifacts landed in the registry under the GitLab project's **Packages and registries > Package Registry** page, where `qe-bom-base-java-parent`, `qe-bom-java`, and `qe-base-java` should each appear with the deployed version (JAR, sources, javadoc, and POM where applicable).
 
 ---
 
@@ -123,14 +134,14 @@ Downstream test projects can consume the artifacts in two ways:
 
 ### Pattern 1: Import the BOM (Version Management)
 
-Import `qe-bom` in `<dependencyManagement>`. Downstream projects can then add any of the managed dependencies without hardcoding versions:
+Import `qe-bom-java` in `<dependencyManagement>`. Downstream projects can then add any of the managed dependencies without hardcoding versions:
 
 ```xml
 <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.adarsha.qe</groupId>
-            <artifactId>qe-bom</artifactId>
+            <artifactId>qe-bom-java</artifactId>
             <version>1.0.0-SNAPSHOT</version>
             <type>pom</type>
             <scope>import</scope>
@@ -139,7 +150,7 @@ Import `qe-bom` in `<dependencyManagement>`. Downstream projects can then add an
 </dependencyManagement>
 
 <dependencies>
-    <!-- Version managed by qe-bom -->
+    <!-- Version managed by qe-bom-java -->
     <dependency>
         <groupId>org.testng</groupId>
         <artifactId>testng</artifactId>

@@ -4,8 +4,9 @@
 
     <servers>
         <!-- 
-          GitLab CI/CD Pipeline Authentication.
-          CI_JOB_TOKEN is automatically provided by GitLab CI during pipeline execution.
+          GitLab Maven Package Registry Authentication.
+          - CI_JOB_TOKEN is automatically provided by GitLab CI during pipeline execution.
+          - GITLAB_PRIVATE_TOKEN is used for local workstation deployment using Personal Access Token (PAT).
         -->
         <server>
             <id>gitlab-maven</id>
@@ -14,6 +15,10 @@
                     <property>
                         <name>Job-Token</name>
                         <value>${env.CI_JOB_TOKEN}</value>
+                    </property>
+                    <property>
+                        <name>Private-Token</name>
+                        <value>${env.GITLAB_PRIVATE_TOKEN}</value>
                     </property>
                 </httpHeaders>
             </configuration>
@@ -28,24 +33,6 @@
             <id>gitlab-maven</id>
             <username>${env.CI_DEPLOY_USER}</username>
             <password>${env.CI_DEPLOY_PASSWORD}</password>
-        </server>
-        -->
-
-        <!-- 
-          Optional: Local deployment using GitLab Personal Access Token (PAT).
-          Export GITLAB_PRIVATE_TOKEN in your local terminal.
-        -->
-        <!--
-        <server>
-            <id>gitlab-maven</id>
-            <configuration>
-                <httpHeaders>
-                    <property>
-                        <name>Private-Token</name>
-                        <value>${env.GITLAB_PRIVATE_TOKEN}</value>
-                    </property>
-                </httpHeaders>
-            </configuration>
         </server>
         -->
     </servers>

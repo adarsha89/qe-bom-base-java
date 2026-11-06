@@ -17,12 +17,12 @@
     <name>QE Base Java Framework</name>
     <description>Core QE test automation library providing TestNG foundation, logging, and Lombok utilities</description>
 
-    <!-- Import versions managed by qe-bom -->
+    <!-- Import versions managed by qe-bom-java -->
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.adarsha.qe</groupId>
-                <artifactId>qe-bom</artifactId>
+                <artifactId>qe-bom-java</artifactId>
                 <version>${project.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -47,6 +47,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <!-- PicoCLI -->
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
         </dependency>
 
         <!-- Lombok -->
