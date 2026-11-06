@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="QE Base Java Framework Suite"
+       parallel="methods"
+       thread-count="5"
+       data-provider-thread-count="5"
+       verbose="1">
+
+    <test name="Parallel Execution &amp; Context Verification Tests">
+        <classes>
+            <class name="com.adarsha.qe.base.BaseTestVerificationTest"/>
+            <class name="com.adarsha.qe.base.ParallelExecutionVerificationTest"/>
+        </classes>
+    </test>
+</suite>

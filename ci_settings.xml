@@ -1,0 +1,53 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
+
+    <servers>
+        <!-- 
+          GitLab CI/CD Pipeline Authentication.
+          CI_JOB_TOKEN is automatically provided by GitLab CI during pipeline execution.
+        -->
+        <server>
+            <id>gitlab-maven</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Job-Token</name>
+                        <value>${env.CI_JOB_TOKEN}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+
+        <!-- 
+          Optional: Local deployment using GitLab Deploy Token.
+          Export CI_DEPLOY_USER and CI_DEPLOY_PASSWORD in your local terminal.
+        -->
+        <!--
+        <server>
+            <id>gitlab-maven</id>
+            <username>${env.CI_DEPLOY_USER}</username>
+            <password>${env.CI_DEPLOY_PASSWORD}</password>
+        </server>
+        -->
+
+        <!-- 
+          Optional: Local deployment using GitLab Personal Access Token (PAT).
+          Export GITLAB_PRIVATE_TOKEN in your local terminal.
+        -->
+        <!--
+        <server>
+            <id>gitlab-maven</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Private-Token</name>
+                        <value>${env.GITLAB_PRIVATE_TOKEN}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+        -->
+    </servers>
+
+</settings>

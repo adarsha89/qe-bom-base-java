@@ -1,0 +1,47 @@
+# ============================================================================
+# GitLab CI/CD Pipeline for QE BOM & Base Java Framework
+# ============================================================================
+
+stages:
+  - test
+  - deploy
+
+default:
+  image: maven:3.9.6-eclipse-temurin-17
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}"
+    paths:
+      - .m2/repository
+
+variables:
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2
+    -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Djava.awt.headless=true
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+# Compile and run TestNG tests with Surefire report generation
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS clean test
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - "**/target/surefire-reports/junitreports/TEST-*.xml"
+    paths:
+      - "**/target/surefire-reports/"
+      - "**/target/logs/"
+    expire_in: 7 days
+
+# Publish parent POM, qe-bom, and qe-base-java to GitLab Maven Package Registry
+deploy:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy -s ci_settings.xml -DskipTests
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
